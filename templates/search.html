@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            color: #333;
+        }
+
+        .navbar {
+            background-color: #004aad;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar .menu {
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        .navbar .contact-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .navbar .contact-icons a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+
+        .header {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #004aad;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .results-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+            text-align: left;
+            animation: fadeInUp 0.5s ease-in-out;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        .result-card:hover {
+            transform: translateY(-10px);
+            background: #e3f2fd;
+            box-shadow: 0 8px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .result-card h3 {
+            color: #004aad;
+            margin-bottom: 10px;
+        }
+
+        .result-card p {
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .result-card a {
+            color: #004aad;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .result-card a:hover {
+            text-decoration: underline;
+        }
+
+        .result-card .source {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 10px;
+            text-align: right;
+        }
+
+        .footer {
+            background: #004aad;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .result-card {
+                width: 90%;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="menu">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div>Rare Diseases Dashboard</div>
+        <div class="contact-icons">
+            <a href="#"><i class="fas fa-envelope"></i></a>
+            <a href="#"><i class="fas fa-phone"></i></a>
+            <a href="#"><i class="fas fa-info-circle"></i></a>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>Search Results</h1>
+        <p>Showing results for: <strong>"{{ query }}"</strong></p>
+    </div>
+
+    <div class="results-container">
+        {% if diseases %}
+            {% for disease in diseases %}
+                <div class="result-card">
+                    <h3>{{ disease.get("Disease", "Unknown Disease") }}</h3>
+                    {% for key, value in disease.items() %}
+                        {% if key != "Disease" and key != "Source" and value %}
+                            <p><strong>{{ key }}:</strong> 
+                                {% if "http" in value %}
+                                    <a href="{{ value }}" target="_blank">Click here for more details</a>
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </p>
+                        {% elif key != "Disease" and key != "Source" %}
+                            <p><strong>{{ key }}:</strong> Sorry, no info will be available soon.</p>
+                        {% endif %}
+                    {% endfor %}
+                    <div class="source">Source: {{ disease.get("Source", "Unknown") }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="header">
+                <p>No results found. Please try another search.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        &copy; 2025 Rare Diseases Dashboard. All rights reserved.
+    </div>
+</body>
+</html>

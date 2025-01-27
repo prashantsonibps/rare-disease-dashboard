@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f9fc;
+        }
+
+        .header {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .results-container {
+            margin: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .result-card h3 {
+            color: #004aad;
+        }
+
+        .result-card p {
+            color: #555;
+        }
+
+        .result-card a {
+            color: #004aad;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Search Results</h1>
+        <p>Showing results for "{{ query }}"</p>
+    </div>
+
+    <div class="results-container">
+        {% if diseases %}
+            {% for disease in diseases %}
+                <div class="result-card">
+                    <h3>{{ disease.get("Disease", "Unknown Disease") }}</h3>
+                    {% for key, value in disease.items() %}
+                        {% if key != "Disease" and value %}
+                            <p><strong>{{ key }}:</strong> {{ value }}</p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center;">No results found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
