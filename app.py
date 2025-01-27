@@ -4,7 +4,7 @@ import pandas as pd
 app = Flask(__name__)
 
 # Path to the local Excel file
-file_path = "/Users/prashantsoni/Downloads/NO DUPLICATES MasterFile.xlsx"
+file_path = "NO DUPLICATES MasterFile.xlsx"
 
 def fetch_diseases():
     try:
