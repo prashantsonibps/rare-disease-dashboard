@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results for {{ query }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #b3e5fc, #90caf9, #64b5f6);
+            background-size: 300% 300%;
+            animation: gradientAnimation 15s ease infinite;
+            margin: 0;
+            padding: 0;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #0056b3;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2em;
+        }
+
+        .blocks-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .block {
+            width: 30%; /* Make the block occupy 30% of the row */
+            height: 200px;
+            background: linear-gradient(135deg, #e3f2fd, #90caf9);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: blockAnimation 5s infinite alternate ease-in-out;
+        }
+
+        @keyframes blockAnimation {
+            0% {
+                background: linear-gradient(135deg, #e3f2fd, #90caf9);
+            }
+            50% {
+                background: linear-gradient(135deg, #90caf9, #64b5f6);
+            }
+            100% {
+                background: linear-gradient(135deg, #64b5f6, #e3f2fd);
+            }
+        }
+
+        .block-front {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s;
+        }
+
+        .block-content {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            overflow: auto;
+            padding: 20px;
+            color: #333;
+        }
+
+        .block.open .block-front {
+            opacity: 0; /* Hide the sheet name when content is displayed */
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #0056b3;
+            color: white;
+        }
+    </style>
+    <script>
+        function toggleBlock(blockId, sheetName, query) {
+            const block = document.getElementById(blockId);
+            const content = block.querySelector(".block-content");
+
+            if (content.style.display === "none" || content.style.display === "") {
+                block.classList.add("open"); // Mark the block as open
+                fetch("/fetch_data", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ sheet_name: sheetName, query: query })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        content.innerHTML = `<p>${data.error}</p>`;
+                    } else if (data.data.length === 0) {
+                        content.style.display = "none"; // Hide the block if no data
+                        block.style.display = "none"; // Hide the entire block
+                    } else {
+                        content.innerHTML = data.data.map(row => `
+                            <p>${Object.entries(row).map(([key, value]) => {
+                                if (typeof value === "string" && value.startsWith("http")) {
+                                    return `<strong>${key}:</strong> <a href="${value}" target="_blank">${value}</a>`;
+                                }
+                                return `<strong>${key}:</strong> ${value}`;
+                            }).join("<br>")}</p>
+                        `).join("<hr>");
+                    }
+                    content.style.display = "block";
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    content.innerHTML = "<p>Error fetching data. Please try again.</p>";
+                });
+            } else {
+                block.classList.remove("open");
+                content.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>Details for "{{ query }}"</h1>
+    </div>
+    <div class="blocks-container">
+        {% for block in blocks %}
+        <div class="block" id="block-{{ block }}" onclick="toggleBlock('block-{{ block }}', '{{ block }}', '{{ query }}')">
+            <div class="block-front">{{ block }}</div>
+            <div class="block-content"></div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="footer">
+        &copy; 2025 Rare Diseases Dashboard. All rights reserved.
+    </div>
+</body>
+</html>
