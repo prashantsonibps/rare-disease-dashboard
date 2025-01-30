@@ -4,23 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rare Diseases Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        /* General Reset */
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #e0f7fa, #b3e5fc, #90caf9, #64b5f6);
+            background-size: 300% 300%;
+            animation: gradientAnimation 15s ease infinite;
             color: #333;
         }
 
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
         .navbar {
-            background-color: #004aad;
-            color: white;
             display: flex;
             justify-content: space-between;
-            padding: 15px 30px;
             align-items: center;
+            background-color: #0056b3;
+            color: white;
+            padding: 10px 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
@@ -29,149 +51,121 @@
             cursor: pointer;
         }
 
-        .navbar .contact-icons {
-            display: flex;
-            gap: 15px;
+        .navbar .contact {
+            text-decoration: none;
+            color: white;
+            background-color: #003c8f;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
         }
 
-        .navbar .contact-icons a {
-            color: white;
-            text-decoration: none;
-            font-size: 1.2em;
+        .navbar .contact:hover {
+            background-color: #002a66;
         }
 
         .header {
-            text-align: center;
-            margin: 50px 0;
+            margin-top: 20px;
         }
 
         .header h1 {
             font-size: 2.5em;
-            color: #004aad;
+            color: #0056b3;
             margin-bottom: 10px;
         }
 
-        .header p {
-            font-size: 1.2em;
-            color: #555;
+        .content {
+            padding: 20px;
         }
 
-        .search-bar {
+        .content h2 {
+            font-size: 2em;
+            color: #0056b3;
+            margin-bottom: 20px;
+        }
+
+        .content p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #333;
+        }
+
+        .search-container {
+            margin-top: 30px;
+        }
+
+        .search-container form {
             display: flex;
             justify-content: center;
-            margin: 40px 0;
+            align-items: center;
         }
 
-        .search-bar input[type="text"] {
+        .search-container input[type="text"] {
             padding: 15px;
-            width: 60%;
-            font-size: 18px;
-            border: 2px solid #ccc;
-            border-radius: 25px 0 0 25px;
-            outline: none;
-            transition: all 0.3s;
+            font-size: 1.2em;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+            width: 400px;
+            max-width: 80%;
         }
 
-        .search-bar input[type="text"]:focus {
-            border-color: #004aad;
-            box-shadow: 0 0 8px rgba(0, 74, 173, 0.4);
-        }
-
-        .search-bar button {
-            padding: 15px 30px;
-            font-size: 18px;
+        .search-container button {
+            padding: 15px 25px;
+            font-size: 1.2em;
+            background-color: #0056b3;
             color: white;
-            background-color: #004aad;
             border: none;
-            border-radius: 0 25px 25px 0;
+            border-radius: 0 5px 5px 0;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background-color 0.3s;
         }
 
-        .search-bar button:hover {
-            background-color: #00367d;
-        }
-
-        .info-section {
-            text-align: center;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            margin: 20px auto;
-            width: 90%;
-            max-width: 800px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .info-section h2 {
-            color: #004aad;
-            margin-bottom: 15px;
-        }
-
-        .info-section p {
-            font-size: 1.1em;
-            color: #555;
-            line-height: 1.6;
+        .search-container button:hover {
+            background-color: #003c8f;
         }
 
         .footer {
-            background: #004aad;
+            background-color: #0056b3;
             color: white;
-            text-align: center;
-            padding: 10px;
+            padding: 10px 0;
             position: fixed;
             bottom: 0;
             width: 100%;
         }
 
-        @media (max-width: 768px) {
-            .search-bar input[type="text"] {
-                width: 80%;
-                font-size: 16px;
-            }
-
-            .search-bar button {
-                font-size: 16px;
-            }
+        .footer p {
+            margin: 0;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <div class="menu">
-            <i class="fas fa-bars"></i>
-        </div>
-        <div>Rare Diseases Dashboard</div>
-        <div class="contact-icons">
-            <a href="#"><i class="fas fa-envelope"></i></a>
-            <a href="#"><i class="fas fa-phone"></i></a>
-            <a href="#"><i class="fas fa-info-circle"></i></a>
-        </div>
+        <div class="menu">☰</div>
+        <a href="/contact" class="contact">Contact Us</a>
     </div>
-
     <div class="header">
-        <h1>Welcome to the Rare Diseases Dashboard</h1>
+        <h1>Rare Diseases Dashboard</h1>
+    </div>
+    <div class="content">
+        <h2>Welcome to the Rare Diseases Dashboard</h2>
         <p>Your ultimate resource for knowledge on rare diseases and orphan drugs.</p>
-    </div>
 
-    <div class="search-bar">
-        <form method="POST" action="/search">
-            <input type="text" name="query" placeholder="Search for a disease...">
-            <button type="submit">Search</button>
-        </form>
-    </div>
+        <div class="search-container">
+            <form method="POST" action="/">
+                <input type="text" name="query" placeholder="Search for a disease..." required>
+                <button type="submit">Search</button>
+            </form>
+        </div>
 
-    <div class="info-section">
         <h2>About Rare Diseases Dashboard</h2>
-        <p>
-            This platform provides comprehensive information on rare diseases, 
-            their symptoms, classifications, treatments, and more. Start exploring to 
-            enhance your knowledge and contribute to the community.
-        </p>
+        <p>This platform provides comprehensive information on rare diseases, their symptoms, classifications, treatments, and more. Start exploring to enhance your knowledge and contribute to the community.</p>
     </div>
-
     <div class="footer">
-        &copy; 2025 Rare Diseases Dashboard. All rights reserved.
+        <p>&copy; 2025 Rare Diseases Dashboard. All rights reserved.</p>
     </div>
 </body>
 </html>
