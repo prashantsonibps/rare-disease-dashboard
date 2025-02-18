@@ -4,168 +4,252 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rare Diseases Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <style>
-        /* General Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
-            background: linear-gradient(135deg, #e0f7fa, #b3e5fc, #90caf9, #64b5f6);
-            background-size: 300% 300%;
-            animation: gradientAnimation 15s ease infinite;
-            color: #333;
+            background-color: #f8d7da; /* Light Red Background */
+            color: black;
+            overflow: hidden;
         }
 
-        @keyframes gradientAnimation {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
+        /* Animated Background */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #fce4e4, #f8d7da);
+            z-index: -1;
         }
 
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #0056b3;
+            background-color: darkred;
             color: white;
-            padding: 10px 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar .menu {
+            padding: 15px 20px;
             font-size: 1.5em;
-            cursor: pointer;
+            position: relative;
+            z-index: 10;
         }
 
-        .navbar .contact {
-            text-decoration: none;
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icons a {
             color: white;
-            background-color: #003c8f;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-size: 0.9em;
-            transition: background-color 0.3s;
-        }
-
-        .navbar .contact:hover {
-            background-color: #002a66;
-        }
-
-        .header {
-            margin-top: 20px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            color: #0056b3;
-            margin-bottom: 10px;
-        }
-
-        .content {
-            padding: 20px;
-        }
-
-        .content h2 {
-            font-size: 2em;
-            color: #0056b3;
-            margin-bottom: 20px;
-        }
-
-        .content p {
             font-size: 1.2em;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 0 auto;
-            color: #333;
+            text-decoration: none;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .social-icons a:hover {
+            transform: scale(1.2);
+        }
+
+        .dashboard {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: #f2b6b6; /* Lighter Red Sidebar */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-right: 3px solid darkred;
+        }
+
+        .sidebar button {
+            padding: 15px;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+            background-color: darkred;
+            color: white;
+            border-radius: 5px;
+            transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        .sidebar button:hover {
+            background-color: #a00000;
+            transform: scale(1.05);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .quote-top {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #800000;
+            margin-bottom: 15px;
+            max-width: 80%;
+            text-align: center;
         }
 
         .search-container {
-            margin-top: 30px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
         }
 
-        .search-container form {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .search-container input[type="text"] {
+        .search-container input {
+            width: 100%;
             padding: 15px;
             font-size: 1.2em;
-            border: 1px solid #ccc;
-            border-radius: 5px 0 0 5px;
-            width: 400px;
-            max-width: 80%;
+            border: 2px solid darkred;
+            border-radius: 25px;
+            outline: none;
+            background-color: #fff5f5;
         }
 
         .search-container button {
-            padding: 15px 25px;
-            font-size: 1.2em;
-            background-color: #0056b3;
-            color: white;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 15px;
             border: none;
-            border-radius: 0 5px 5px 0;
+            background-color: darkred;
+            color: white;
+            border-radius: 20px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background 0.3s ease-in-out;
         }
 
         .search-container button:hover {
-            background-color: #003c8f;
+            background-color: #a00000;
         }
 
-        .footer {
-            background-color: #0056b3;
-            color: white;
-            padding: 10px 0;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+        .quote-bottom {
+            margin-top: 15px;
+            font-style: italic;
+            font-size: 1.2em;
+            color: #444;
+            max-width: 600px;
+            text-align: center;
         }
 
-        .footer p {
-            margin: 0;
-            font-size: 0.9em;
+        .disease-list {
+            margin-top: 20px;
+            width: 80%;
+            max-width: 400px;
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            padding: 10px;
+            border: 2px solid darkred;
+            text-align: left;
+            display: none;
+            border-radius: 5px;
+        }
+
+        .disease-list a {
+            display: block;
+            padding: 5px;
+            text-decoration: none;
+            color: black;
+            border-bottom: 1px solid lightgray;
+            cursor: pointer;
+        }
+
+        .disease-list a:hover {
+            background-color: lightgray;
         }
     </style>
 </head>
 <body>
+    <!-- Neuron Animation Background -->
+    <div id="particles-js"></div>
+
     <div class="navbar">
-        <div class="menu">☰</div>
-        <a href="/contact" class="contact">Contact Us</a>
-    </div>
-    <div class="header">
-        <h1>Rare Diseases Dashboard</h1>
-    </div>
-    <div class="content">
-        <h2>Welcome to the Rare Diseases Dashboard</h2>
-        <p>Your ultimate resource for knowledge on rare diseases and orphan drugs.</p>
-
-        <div class="search-container">
-            <form method="POST" action="/">
-                <input type="text" name="query" placeholder="Search for a disease..." required>
-                <button type="submit">Search</button>
-            </form>
+        <div>Rare Diseases Dashboard</div>
+        <div class="social-icons">
+            <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
+            <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="mailto:contact@rarediseases.com"><i class="fas fa-envelope"></i></a>
         </div>
+    </div>
+    
+    <div class="dashboard">
+        <div class="sidebar">
+            <button onclick="fetchDiseases('alphabetical')">📄 Show List of All Diseases</button>
+            <button onclick="fetchDiseases('prevalence')">📊 Disease by Prevalence</button>
+        </div>
+        
+        <div class="main-content">
+            <!-- Quote Above Search Bar -->
+            <div class="quote-top">"Together, we turn hope into action for rare disease patients."</div>
 
-        <h2>About Rare Diseases Dashboard</h2>
-        <p>This platform provides comprehensive information on rare diseases, their symptoms, classifications, treatments, and more. Start exploring to enhance your knowledge and contribute to the community.</p>
+            <div class="search-container">
+                <form method="POST" action="/">
+                    <input type="text" name="query" placeholder="Search for a disease..." required>
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <!-- Quote Below Search Bar -->
+            <div class="quote-bottom">"There are over 7,000 rare diseases, affecting more than 300 million people worldwide."</div>
+
+            <div id="disease-list" class="disease-list"></div>
+        </div>
     </div>
-    <div class="footer">
-        <p>&copy; 2025 Rare Diseases Dashboard. All rights reserved.</p>
-    </div>
+    
+    <script>
+        let lastRequest = "";
+
+        function fetchDiseases(type) {
+            if (lastRequest === type) return;
+            lastRequest = type;
+
+            fetch('/get_diseases?type=' + type)
+                .then(response => response.json())
+                .then(data => {
+                    let listContainer = document.getElementById("disease-list");
+                    listContainer.style.display = "block";
+                    listContainer.innerHTML = "";
+
+                    data.diseases.forEach(disease => {
+                        let link = document.createElement("a");
+                        link.href = `/search/${encodeURIComponent(disease)}`;
+                        link.textContent = disease;
+                        listContainer.appendChild(link);
+                    });
+                })
+                .catch(error => console.error("Error fetching diseases:", error));
+        }
+
+        // Load Light Red Neuron Animation
+        particlesJS("particles-js", {
+            "particles": {
+                "number": {"value": 90, "density": {"enable": true, "value_area": 800}},
+                "color": {"value": "#cc0000"},
+                "shape": {"type": "circle"},
+                "opacity": {"value": 0.5, "random": true},
+                "size": {"value": 3, "random": true},
+                "line_linked": {"enable": true, "distance": 150, "color": "#cc0000", "opacity": 0.4, "width": 1},
+                "move": {"enable": true, "speed": 1.2, "direction": "none", "random": true}
+            },
+            "interactivity": {"detect_on": "canvas", "events": {"onhover": {"enable": true, "mode": "repulse"}}}
+        });
+    </script>
 </body>
 </html>
