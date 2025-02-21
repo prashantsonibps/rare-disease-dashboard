@@ -173,6 +173,31 @@
         .disease-list a:hover {
             background-color: lightgray;
         }
+
+        .suggestions-box {
+    position: absolute;
+    background: white;
+    border: 1px solid darkred;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+}
+
+.suggestions-box a {
+    display: block;
+    padding: 8px;
+    text-decoration: none;
+    color: black;
+    border-bottom: 1px solid lightgray;
+    cursor: pointer;
+}
+
+.suggestions-box a:hover {
+    background-color: lightgray;
+}
+
     </style>
 </head>
 <body>
@@ -191,8 +216,9 @@
     
     <div class="dashboard">
         <div class="sidebar">
-            <button onclick="fetchDiseases('alphabetical')">📄 Show List of All Diseases</button>
-            <button onclick="fetchDiseases('prevalence')">📊 Disease by Prevalence</button>
+            <button onclick="fetchDiseases('alphabetical')">📄 List of All Diseases</button>
+            <button onclick="fetchDiseases('prevalence')">📊 List by Prevalence (Most Common)</button>
+            <button onclick="fetchDiseases('prevalence', true)">📊 List by Prevalence (Least Common)</button>
         </div>
         
         <div class="main-content">
@@ -200,11 +226,11 @@
             <div class="quote-top">"Together, we turn hope into action for rare disease patients."</div>
 
             <div class="search-container">
-                <form method="POST" action="/">
-                    <input type="text" name="query" placeholder="Search for a disease..." required>
-                    <button type="submit"><i class="fas fa-search"></i></button>
-                </form>
+                <input type="text" id="search-input" name="query" placeholder="Search for a disease..." onkeyup="fetchSuggestions()" required autocomplete="off">
+                <button type="submit"><i class="fas fa-search"></i></button>
+                <div id="suggestions-box" class="suggestions-box"></div>
             </div>
+            
 
             <!-- Quote Below Search Bar -->
             <div class="quote-bottom">"There are over 7,000 rare diseases, affecting more than 300 million people worldwide."</div>
@@ -216,26 +242,23 @@
     <script>
         let lastRequest = "";
 
-        function fetchDiseases(type) {
-            if (lastRequest === type) return;
-            lastRequest = type;
+        function fetchDiseases(type, reverse = false) {
+    fetch(`/get_diseases?type=${type}&reverse=${reverse}`)
+        .then(response => response.json())
+        .then(data => {
+            let listContainer = document.getElementById("disease-list");
+            listContainer.style.display = "block";
+            listContainer.innerHTML = "";
 
-            fetch('/get_diseases?type=' + type)
-                .then(response => response.json())
-                .then(data => {
-                    let listContainer = document.getElementById("disease-list");
-                    listContainer.style.display = "block";
-                    listContainer.innerHTML = "";
-
-                    data.diseases.forEach(disease => {
-                        let link = document.createElement("a");
-                        link.href = `/search/${encodeURIComponent(disease)}`;
-                        link.textContent = disease;
-                        listContainer.appendChild(link);
-                    });
-                })
-                .catch(error => console.error("Error fetching diseases:", error));
-        }
+            data.diseases.forEach(disease => {
+                let link = document.createElement("a");
+                link.href = `/search/${encodeURIComponent(disease)}`;
+                link.textContent = disease;
+                listContainer.appendChild(link);
+            });
+        })
+        .catch(error => console.error("Error fetching diseases:", error));
+}
 
         // Load Light Red Neuron Animation
         particlesJS("particles-js", {
@@ -250,8 +273,48 @@
             },
             "interactivity": {"detect_on": "canvas", "events": {"onhover": {"enable": true, "mode": "repulse"}}}
         });
+
+
+        function fetchSuggestions() {
+    let query = document.getElementById("search-input").value.trim();
+    let suggestionsBox = document.getElementById("suggestions-box");
+
+    if (query.length < 1) {
+        suggestionsBox.style.display = "none";
+        return;
+    }
+
+    fetch(`/search_suggestions?query=${query}`)
+        .then(response => response.json())
+        .then(data => {
+            suggestionsBox.innerHTML = "";
+            if (data.length === 0) {
+                suggestionsBox.style.display = "none";
+                return;
+            }
+
+            data.forEach(disease => {
+                let suggestionItem = document.createElement("a");
+                suggestionItem.href = `/search/${encodeURIComponent(disease)}`;
+                suggestionItem.textContent = disease;
+                suggestionsBox.appendChild(suggestionItem);
+            });
+
+            suggestionsBox.style.display = "block";
+        })
+        .catch(error => console.error("Error fetching suggestions:", error));
+}
+
+// Hide suggestions when clicking outside
+document.addEventListener("click", function(event) {
+    let suggestionsBox = document.getElementById("suggestions-box");
+    let searchInput = document.getElementById("search-input");
+
+    if (!searchInput.contains(event.target) && !suggestionsBox.contains(event.target)) {
+        suggestionsBox.style.display = "none";
+    }
+});
+
     </script>
 </body>
 </html>
-
-
