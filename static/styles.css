@@ -1,3 +1,4 @@
+/* 🔹 General Styling */
 body {
     margin: 0;
     padding: 0;
@@ -6,6 +7,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
+/* 🔹 Background Animation */
 #particles-js {
     position: fixed;
     width: 100%;
@@ -14,11 +16,12 @@ body {
     z-index: -1;
 }
 
+/* 🔹 Center Content */
 .container {
     position: relative;
     z-index: 1;
     text-align: center;
-    margin-top: 10%;
+    margin-top: 5%;
     padding: 10px;
     width: 90%;
     max-width: 800px;
@@ -26,7 +29,7 @@ body {
     margin-right: auto;
 }
 
-/* Search Bar Styling */
+/* 🔹 Search Bar */
 .search-container {
     display: flex;
     justify-content: center;
@@ -60,12 +63,12 @@ button:hover {
     background-color: #cc0000; /* Darker red */
 }
 
-/* Sidebar */
+/* 🔹 Sidebar */
 .sidebar {
     width: 250px;
     background-color: #300c0c;
     padding: 15px;
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     height: 100%;
@@ -78,7 +81,7 @@ button:hover {
     margin: 5px 0;
 }
 
-/* Suggestions Box */
+/* 🔹 Suggestions Box */
 .suggestions-box {
     position: absolute;
     background: white;
@@ -106,21 +109,22 @@ button:hover {
     background-color: lightgray;
 }
 
-/* Media Queries for Mobile Responsiveness */
+/* 🔹 MOBILE RESPONSIVENESS */
 @media screen and (max-width: 768px) {
-    /* General adjustments */
+    /* 📌 Make everything fit smaller screens */
     body {
         font-size: 16px;
+        text-align: center;
     }
 
-    /* Navbar */
+    /* 📌 Navbar Fix */
     .navbar {
         flex-direction: column;
         text-align: center;
         padding: 10px;
     }
 
-    /* Adjust sidebar */
+    /* 📌 Sidebar Adjustments */
     .sidebar {
         width: 100%;
         height: auto;
@@ -130,6 +134,7 @@ button:hover {
         display: flex;
         flex-direction: column;
         gap: 10px;
+        background-color: #300c0c;
     }
 
     .sidebar button {
@@ -139,10 +144,10 @@ button:hover {
         margin: 5px auto;
     }
 
-    /* Search bar */
+    /* 📌 Search Bar */
     .search-container {
-        width: 100%;
-        max-width: 90%;
+        width: 90%;
+        max-width: 100%;
         margin: 0 auto;
         display: flex;
         flex-direction: column;
@@ -158,8 +163,8 @@ button:hover {
 
     .search-container button {
         padding: 12px;
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
         font-size: 18px;
         display: flex;
@@ -167,7 +172,7 @@ button:hover {
         align-items: center;
     }
 
-    /* Fix search suggestions alignment */
+    /* 📌 Search Suggestions */
     .suggestions-box {
         width: 90%;
         left: 50%;
@@ -176,7 +181,14 @@ button:hover {
         max-height: 250px;
     }
 
-    /* Adjusting content */
+    /* 📌 Main Content */
+    .container {
+        width: 100%;
+        margin-top: 10%;
+        padding: 10px;
+    }
+
+    /* 📌 Titles & Results */
     .sheet-title {
         width: 90%;
         font-size: 16px;
@@ -189,14 +201,14 @@ button:hover {
         font-size: 14px;
     }
 
-    /* Buttons */
+    /* 📌 Buttons */
     .download-btn {
         width: 90%;
         font-size: 16px;
         padding: 12px;
     }
 
-    /* Prevent horizontal scrolling */
+    /* 📌 Prevent Horizontal Scrolling */
     html, body {
         overflow-x: hidden;
     }
