@@ -37,3 +37,86 @@ button {
     border-radius: 5px;
     cursor: pointer;
 }
+
+
+
+@media screen and (max-width: 768px) {
+    /* General adjustments */
+    body {
+        font-size: 16px;
+    }
+
+    /* Navbar */
+    .navbar {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;
+    }
+
+    /* Search bar */
+    .search-container {
+        width: 100%;
+        max-width: none;
+    }
+
+    .search-container input {
+        font-size: 18px;
+        padding: 12px;
+        width: 90%;
+        border-radius: 20px;
+    }
+
+    .search-container button {
+        padding: 12px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 100%;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .sidebar button {
+        width: 100%;
+        font-size: 18px;
+        padding: 15px;
+    }
+
+    /* Adjusting content */
+    .sheet-title {
+        width: 90%;
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .sheet-content {
+        width: 95%;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    /* Buttons */
+    .download-btn {
+        width: 90%;
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    /* Suggestions box */
+    .suggestions-box {
+        width: 90%;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 14px;
+        max-height: 250px;
+    }
+}
+
+html, body {
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
