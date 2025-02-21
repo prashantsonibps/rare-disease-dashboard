@@ -21,6 +21,14 @@ def clean_text(text):
         text = unicodedata.normalize('NFKD', text)  # Normalize text
     return text
 
+def format_text_for_pdf(text):
+    """Format text by inserting new lines if there are more than 10 consecutive spaces."""
+    return re.sub(r' {10,}', '\n', text)
+
+def is_valid_url(text):
+    """Check if a given text is a valid URL."""
+    return re.match(r'^https?:\/\/\S+', text) is not None
+
 def fetch_diseases():
     """Load data from all sheets into a dictionary."""
     global fetched_data
@@ -94,13 +102,15 @@ def fetch_data():
         data = fetched_data[sheet_name]
 
         if "Disease" in data.columns:
-            # Ensure exact match in the "Disease" column only
             filtered = data[data["Disease"].str.lower() == query]
-
             results = filtered.to_dict(orient="records")
 
             if not results:
                 return jsonify({"error": "No matching records found."}), 404
+            
+            # Append the note for Prevalence block
+            if sheet_name == "Prevalence":
+                results.append({"NOTE": "Without specification, published figures are worldwide | An asterisk * indicates European data | BP indicates birth prevalence."})
 
             return jsonify({"sheet": sheet_name, "data": results})
         else:
@@ -120,35 +130,55 @@ def download_pdf(query):
 
     for sheet_name, data in fetched_data.items():
         if "Disease" in data.columns:
-            # Strict match to prevent unrelated diseases from appearing
             filtered = data[data["Disease"].str.lower() == query.lower()]
             if not filtered.empty:
                 pdf.set_font("Arial", "B", 12)
                 pdf.cell(200, 10, f"\n{sheet_name}:", ln=True)
                 pdf.set_font("Arial", "", 10)
 
-                for _, row in filtered.iterrows():
-                    for col, val in row.items():
-                        if pd.isna(val) or val == "No details available":
-                            continue
+                if sheet_name == "Classification":
+                    for _, row in filtered.iterrows():
+                        categories = [key for key, value in row.items() if key != "Disease" and value and value != "No details available"]
+                        pdf.multi_cell(0, 6, f"Disease: {row['Disease']}")
+                        pdf.multi_cell(0, 6, f"Categories: {', '.join(categories)}")
+                else:
+                    for _, row in filtered.iterrows():
+                        for col, val in row.items():
+                            if pd.isna(val) or val == "No details available":
+                                continue
 
-                        # Clean and format text properly
-                        val = clean_text(str(val))
+                            val = clean_text(str(val))
+                            val = format_text_for_pdf(val)
 
-                        if "Unnamed" in col:
-                            pdf.cell(0, 6, f"{val}", ln=True)
-                        else:
-                            if isinstance(val, str) and val.startswith("http"):
-                                pdf.set_text_color(0, 0, 255)
-                                pdf.cell(0, 6, f"{col}: {val}", ln=True, link=val)
-                                pdf.set_text_color(0, 0, 0)
+                            # Remove "Unnamed" column names but keep their data
+                            if sheet_name == "Biopharma Pipeline Drug" and col.startswith("Unnamed"):
+                                if is_valid_url(val):
+                                    pdf.set_text_color(0, 0, 255)  # Set link color
+                                    pdf.cell(0, 6, val, ln=True, link=val)  # Clickable hyperlink
+                                    pdf.set_text_color(0, 0, 0)  # Reset color
+                                else:
+                                    pdf.multi_cell(0, 6, val)  # Normal text
+                            elif sheet_name == "Prevalence":
+                                pdf.cell(0, 6, f"{col}: {val}", ln=True)  # Use cell() for Prevalence
+                            elif sheet_name == "Publications" and is_valid_url(val):
+                                pdf.set_text_color(0, 0, 255)  # Set link color
+                                pdf.cell(0, 6, val, ln=True, link=val)  # Clickable hyperlink in Publications
+                                pdf.set_text_color(0, 0, 0)  # Reset color
+                            elif is_valid_url(val):
+                                pdf.set_text_color(0, 0, 255)  # Set link color
+                                pdf.cell(0, 6, f"{col}: ", ln=False)  # Add column name
+                                pdf.cell(0, 6, val, ln=True, link=val)  # Clickable hyperlink
+                                pdf.set_text_color(0, 0, 0)  # Reset color
                             else:
-                                pdf.cell(0, 6, f"{col}: {val}", ln=True)
-
+                                pdf.multi_cell(0, 6, f"{col}: {val}")  # Keep multi-cell for other sections
+                
+                if sheet_name == "Prevalence":
+                    pdf.multi_cell(0, 8, "NOTE: Without specification, published figures are worldwide || An asterisk * indicates European data || BP indicates Birth Prevalence.")
+    
     pdf_file = f"{query}.pdf"
     pdf.output(pdf_file, "F")
 
     return send_file(pdf_file, as_attachment=True)
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     app.run(debug=True)
