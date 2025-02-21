@@ -18,28 +18,95 @@ body {
     position: relative;
     z-index: 1;
     text-align: center;
-    margin-top: 15%;
+    margin-top: 10%;
+    padding: 10px;
+    width: 90%;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Search Bar Styling */
+.search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    position: relative;
 }
 
 input[type="text"] {
-    padding: 10px;
-    width: 60%;
-    border-radius: 5px;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
     border: none;
+    font-size: 18px;
 }
 
 button {
-    padding: 10px 20px;
+    padding: 12px 20px;
     border: none;
     background-color: #ff4d4d; /* Dark red */
     color: white;
     font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #cc0000; /* Darker red */
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #300c0c;
+    padding: 15px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+}
+
+.sidebar button {
+    width: 100%;
+    font-size: 18px;
+    padding: 15px;
+    margin: 5px 0;
+}
+
+/* Suggestions Box */
+.suggestions-box {
+    position: absolute;
+    background: white;
+    color: black;
+    border: 1px solid darkred;
+    width: 100%;
+    max-width: 600px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
     border-radius: 5px;
+}
+
+.suggestions-box a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+    border-bottom: 1px solid lightgray;
     cursor: pointer;
 }
 
+.suggestions-box a:hover {
+    background-color: lightgray;
+}
 
-
+/* Media Queries for Mobile Responsiveness */
 @media screen and (max-width: 768px) {
     /* General adjustments */
     body {
@@ -53,26 +120,12 @@ button {
         padding: 10px;
     }
 
-    /* Search bar */
-    .search-container {
-        width: 100%;
-        max-width: none;
-    }
-
-    .search-container input {
-        font-size: 18px;
-        padding: 12px;
-        width: 90%;
-        border-radius: 20px;
-    }
-
-    .search-container button {
-        padding: 12px;
-    }
-
-    /* Sidebar */
+    /* Adjust sidebar */
     .sidebar {
         width: 100%;
+        height: auto;
+        position: relative;
+        text-align: center;
         padding: 10px;
         display: flex;
         flex-direction: column;
@@ -80,9 +133,47 @@ button {
     }
 
     .sidebar button {
+        width: 90%;
+        font-size: 16px;
+        padding: 12px;
+        margin: 5px auto;
+    }
+
+    /* Search bar */
+    .search-container {
         width: 100%;
+        max-width: 90%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .search-container input {
+        font-size: 16px;
+        padding: 10px;
+        width: 90%;
+        border-radius: 20px;
+    }
+
+    .search-container button {
+        padding: 12px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
         font-size: 18px;
-        padding: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Fix search suggestions alignment */
+    .suggestions-box {
+        width: 90%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 14px;
+        max-height: 250px;
     }
 
     /* Adjusting content */
@@ -105,18 +196,8 @@ button {
         padding: 12px;
     }
 
-    /* Suggestions box */
-    .suggestions-box {
-        width: 90%;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 14px;
-        max-height: 250px;
+    /* Prevent horizontal scrolling */
+    html, body {
+        overflow-x: hidden;
     }
 }
-
-html, body {
-    overflow-x: hidden; /* Prevent horizontal scrolling */
-}
-
