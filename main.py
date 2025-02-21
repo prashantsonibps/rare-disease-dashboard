@@ -8,7 +8,7 @@ import unicodedata
 app = Flask(__name__)
 
 # Path to the local Excel file
-file_path = "NO_DUPLICATES_16thFeb.xlsx"
+file_path = "/Users/prashantsoni/Downloads/NO_DUPLICATES_16thFeb.xlsx"
 
 # Global variable to store fetched data
 fetched_data = {}
@@ -77,18 +77,45 @@ def search(query):
     sheets = list(fetched_data.keys())
     return render_template("blocks.html", query=query, sheets=sheets)
 
+@app.route("/search_suggestions")
+def search_suggestions():
+    """Fetch disease name suggestions as the user types."""
+    global fetched_data
+    query = request.args.get("query", "").strip().lower()
+
+    if not query:
+        return jsonify([])  # Return empty if no query
+
+    all_diseases = set()
+    for sheet in fetched_data.values():
+        if 'Disease' in sheet.columns:
+            all_diseases.update(sheet['Disease'].dropna().unique())
+
+    # Filter diseases that match the query
+    matching_diseases = sorted([d for d in all_diseases if query in str(d).lower()])
+
+    return jsonify(matching_diseases[:10])  # Return only top 10 matches for performance
+
+
+
 @app.route("/get_diseases")
 def get_diseases():
     """Fetch disease names based on the requested type (alphabetical or prevalence order)."""
     global fetched_data
     disease_type = request.args.get("type")
+    reverse_order = request.args.get("reverse", "false").lower() == "true"  # Detect reverse order request
+
     diseases = []
 
     if disease_type == "alphabetical":
         diseases = sorted(fetched_data.get("Prevalence", pd.DataFrame()).get("Disease", []).dropna().unique())
     elif disease_type == "prevalence":
         diseases = fetched_data.get("Prevalence", pd.DataFrame()).get("Disease", []).dropna().tolist()
-    
+
+    # Reverse the list if requested
+    if reverse_order:
+        diseases.reverse()
+
     return jsonify({"diseases": diseases})
 
 @app.route("/fetch_data", methods=["POST"])
