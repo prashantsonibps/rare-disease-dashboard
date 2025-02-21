@@ -8,7 +8,7 @@ import unicodedata
 app = Flask(__name__)
 
 # Path to the local Excel file
-file_path = "/Users/prashantsoni/Downloads/NO_DUPLICATES_16thFeb.xlsx"
+file_path = "NO_DUPLICATES_16thFeb.xlsx"
 
 # Global variable to store fetched data
 fetched_data = {}
