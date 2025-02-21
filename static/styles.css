@@ -1,4 +1,4 @@
-/* 🔹 General Styling */
+/* General Styling */
 body {
     margin: 0;
     padding: 0;
@@ -7,7 +7,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* 🔹 Background Animation */
+/* Background Animation */
 #particles-js {
     position: fixed;
     width: 100%;
@@ -16,7 +16,7 @@ body {
     z-index: -1;
 }
 
-/* 🔹 Center Content */
+/* Center Content */
 .container {
     position: relative;
     z-index: 1;
@@ -29,14 +29,14 @@ body {
     margin-right: auto;
 }
 
-/* 🔹 Search Bar */
+/* Search Bar */
 .search-container {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
     max-width: 600px;
-    margin: 20px auto;
+    margin: 50px auto; /* Moves it to the middle */
     position: relative;
 }
 
@@ -63,7 +63,7 @@ button:hover {
     background-color: #cc0000; /* Darker red */
 }
 
-/* 🔹 Sidebar */
+/* Sidebar */
 .sidebar {
     width: 250px;
     background-color: #300c0c;
@@ -81,7 +81,7 @@ button:hover {
     margin: 5px 0;
 }
 
-/* 🔹 Suggestions Box */
+/* Suggestions Box */
 .suggestions-box {
     position: absolute;
     background: white;
@@ -109,22 +109,51 @@ button:hover {
     background-color: lightgray;
 }
 
-/* 🔹 MOBILE RESPONSIVENESS */
+/* 📌 Mobile Responsive Fixes */
 @media screen and (max-width: 768px) {
-    /* 📌 Make everything fit smaller screens */
+    /* Adjust body text */
     body {
         font-size: 16px;
         text-align: center;
     }
 
-    /* 📌 Navbar Fix */
+    /* Navbar */
     .navbar {
         flex-direction: column;
         text-align: center;
         padding: 10px;
     }
 
-    /* 📌 Sidebar Adjustments */
+    /* 📌 Search Bar - Move to the Middle */
+    .search-container {
+        width: 100%;
+        max-width: 80%;
+        margin-top: 100px; /* Move to center */
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .search-container input {
+        font-size: 16px;
+        padding: 10px;
+        width: 70%;
+        border-radius: 25px;
+    }
+
+    .search-container button {
+        padding: 12px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        font-size: 18px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* 📌 Adjust Buttons */
     .sidebar {
         width: 100%;
         height: auto;
@@ -138,57 +167,20 @@ button:hover {
     }
 
     .sidebar button {
-        width: 90%;
-        font-size: 16px;
-        padding: 12px;
+        width: 85%;  /* Smaller width */
+        font-size: 14px; /* Smaller font */
+        padding: 10px; /* Reduce padding */
         margin: 5px auto;
     }
 
-    /* 📌 Search Bar */
-    .search-container {
-        width: 90%;
-        max-width: 100%;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .search-container input {
-        font-size: 16px;
-        padding: 10px;
-        width: 90%;
-        border-radius: 20px;
-    }
-
-    .search-container button {
-        padding: 12px;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        font-size: 18px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    /* 📌 Search Suggestions */
-    .suggestions-box {
-        width: 90%;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 14px;
-        max-height: 250px;
-    }
-
-    /* 📌 Main Content */
+    /* 📌 Adjust Main Content */
     .container {
         width: 100%;
         margin-top: 10%;
         padding: 10px;
     }
 
-    /* 📌 Titles & Results */
+    /* Titles & Results */
     .sheet-title {
         width: 90%;
         font-size: 16px;
@@ -201,14 +193,14 @@ button:hover {
         font-size: 14px;
     }
 
-    /* 📌 Buttons */
+    /* Download Button */
     .download-btn {
-        width: 90%;
-        font-size: 16px;
-        padding: 12px;
+        width: 85%;
+        font-size: 14px;
+        padding: 10px;
     }
 
-    /* 📌 Prevent Horizontal Scrolling */
+    /* Prevent Horizontal Scrolling */
     html, body {
         overflow-x: hidden;
     }
