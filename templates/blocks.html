@@ -102,44 +102,53 @@
         }
 
         function fetchSheetData(sheetName, query, sheetId) {
-            var content = document.getElementById(sheetId);
-            if (content.innerHTML.trim() === "") {
-                fetch("/fetch_data", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ sheet_name: sheetName, query: query })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        content.innerHTML = `<p>${data.error}</p>`;
-                    } else if (data.data.length === 0) {
-                        content.style.display = "none";
-                    } else {
-                        content.innerHTML = data.data.map(row => {
-                            if (sheetName === "Classification") {
-                                let columnsWithData = Object.entries(row)
-                                    .filter(([key, value]) => key !== "Disease" && value && value !== "No details available")
-                                    .map(([key, _]) => key);
-                                return `<p><strong>Disease:</strong> ${row["Disease"]}</p><p><strong>Categories:</strong> ${columnsWithData.join(", ")}</p>`;
-                            }
-                            return `<p>${Object.entries(row).map(([key, value]) => {
-                                if (!value || value === "No details available") return "";
-                                if (key.startsWith("Unnamed")) {
-                                    return makeLinksClickable(`${value}`);
-                                }
-                                return `<strong>${key}:</strong> ` + makeLinksClickable(value.toString());
-                            }).join("<br>")}</p>`;
-                        }).join("<hr>").replace(/(<br>\s*)+/g, "<br>");
+    var content = document.getElementById(sheetId);
+
+    // If it's hidden, show it immediately
+    var isCurrentlyHidden = content.style.display === "none" || content.style.display === "";
+    content.style.display = isCurrentlyHidden ? "block" : "none";
+
+    // Show a loading message if data hasn't been fetched
+    if (!content.dataset.loaded) {
+        content.innerHTML = "<p>Loading...</p>";
+        
+        fetch("/fetch_data", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sheet_name: sheetName, query: query })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                content.innerHTML = `<p>${data.error}</p>`;
+            } else if (data.data.length === 0) {
+                content.innerHTML = "<p>No data available.</p>";
+            } else {
+                content.innerHTML = data.data.map(row => {
+                    if (sheetName === "Classification") {
+                        let columnsWithData = Object.entries(row)
+                            .filter(([key, value]) => key !== "Disease" && value && value !== "No details available")
+                            .map(([key, _]) => key);
+                        return `<p><strong>Disease:</strong> ${row["Disease"]}</p><p><strong>Categories:</strong> ${columnsWithData.join(", ")}</p>`;
                     }
-                })
-                .catch(error => {
-                    console.error("Error fetching data:", error);
-                    content.innerHTML = "<p>Error fetching data. Please try again.</p>";
-                });
+                    return `<p>${Object.entries(row).map(([key, value]) => {
+                        if (!value || value === "No details available") return "";
+                        if (key.startsWith("Unnamed")) {
+                            return makeLinksClickable(`${value}`);
+                        }
+                        return `<strong>${key}:</strong> ` + makeLinksClickable(value.toString());
+                    }).join("<br>")}</p>`;
+                }).join("<hr>").replace(/(<br>\s*)+/g, "<br>");
             }
-            toggleSheetContent(sheetId);
-        }
+            content.dataset.loaded = "true";
+        })
+        .catch(error => {
+            console.error("Error fetching data:", error);
+            content.innerHTML = "<p>Error fetching data. Please try again.</p>";
+        });
+    }
+}
+
 
         // Load Light Red Neuron Animation
         particlesJS("particles-js", {
