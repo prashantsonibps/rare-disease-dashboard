@@ -8,7 +8,7 @@ import unicodedata
 app = Flask(__name__)
 
 # Path to the local Excel file
-file_path = "NO_DUPLICATES_16thFeb.xlsx"
+file_path = "/Users/prashantsoni/Downloads/NO_DUPLICATES _7thmarch.xlsx"
 
 # Global variable to store fetched data
 fetched_data = {}
@@ -34,11 +34,12 @@ def fetch_diseases():
     global fetched_data
     sheets_to_load = [
         "Prevalence",
-        "Biopharma Pipeline Drug",
-        "Approved Treatments",
+        "Classification",
         "Inheritance",
-        "Publications",
-        "Classification"
+        "Genetic Mutation",
+        "Approved Treatments",
+        "Biopharma Pipeline",
+        "Publications"
     ]
 
     for sheet in sheets_to_load:
@@ -46,6 +47,7 @@ def fetch_diseases():
             print(f"Loading sheet: {sheet}")
             data = pd.read_excel(file_path, sheet_name=sheet)
             data.fillna("No details available", inplace=True)
+            print(f"Columns in {sheet}: {list(data.columns)}")  # Debug column names
             fetched_data[sheet] = data
             print(f"Loaded {len(data)} rows from {sheet}.")
         except Exception as e:
@@ -72,7 +74,7 @@ def index():
 
 @app.route("/search/<query>", methods=["GET"])
 def search(query):
-    """Render the blocks page for a specific disease query."""
+    """Render the search page for a specific disease query."""
     global fetched_data
     sheets = list(fetched_data.keys())
     return render_template("blocks.html", query=query, sheets=sheets)
@@ -95,8 +97,6 @@ def search_suggestions():
     matching_diseases = sorted([d for d in all_diseases if query in str(d).lower()])
 
     return jsonify(matching_diseases[:10])  # Return only top 10 matches for performance
-
-
 
 @app.route("/get_diseases")
 def get_diseases():
@@ -140,6 +140,22 @@ def fetch_data():
                 results.append({"NOTE": "Without specification, published figures are worldwide | An asterisk * indicates European data | BP indicates birth prevalence."})
 
             return jsonify({"sheet": sheet_name, "data": results})
+        elif sheet_name == "Classification":
+            # Handle Classification sheet: match disease in the first column
+            results = []
+            first_column = data.columns[0]  # First column is the disease column
+            filtered = data[data[first_column].str.lower() == query]
+            for index, row in filtered.iterrows():
+                # Include the queried disease name explicitly
+                result_entry = {"Disease": query.capitalize()}
+                # Collect column names with available data, excluding the first column
+                for col in data.columns[1:]:  # Skip the first column
+                    if pd.notna(row[col]) and row[col] != "No details available":
+                        result_entry[col] = row[col]
+                results.append(result_entry)
+            if not results:
+                return jsonify({"error": "No matching records found in Classification."}), 404
+            return jsonify({"sheet": sheet_name, "data": results})
         else:
             return jsonify({"error": "No 'Disease' column found in sheet"}), 404
     else:
@@ -158,54 +174,72 @@ def download_pdf(query):
     for sheet_name, data in fetched_data.items():
         if "Disease" in data.columns:
             filtered = data[data["Disease"].str.lower() == query.lower()]
-            if not filtered.empty:
-                pdf.set_font("Arial", "B", 12)
-                pdf.cell(200, 10, f"\n{sheet_name}:", ln=True)
-                pdf.set_font("Arial", "", 10)
+        elif sheet_name == "Classification":
+            filtered = pd.DataFrame(columns=data.columns)  # Initialize empty DataFrame
+            first_column = data.columns[0]  # First column is the disease column
+            filtered = data[data[first_column].str.lower() == query.lower()]
+        else:
+            continue  # Skip sheets without "Disease" column except Classification
 
-                if sheet_name == "Classification":
-                    for _, row in filtered.iterrows():
-                        categories = [key for key, value in row.items() if key != "Disease" and value and value != "No details available"]
-                        pdf.multi_cell(0, 6, f"Disease: {row['Disease']}")
-                        pdf.multi_cell(0, 6, f"Categories: {', '.join(categories)}")
-                else:
-                    for _, row in filtered.iterrows():
-                        for col, val in row.items():
-                            if pd.isna(val) or val == "No details available":
-                                continue
+        if not filtered.empty:
+            pdf.set_font("Arial", "B", 12)
+            pdf.cell(200, 10, f"\n{sheet_name}:", ln=True)
+            pdf.set_font("Arial", "", 10)
 
-                            val = clean_text(str(val))
-                            val = format_text_for_pdf(val)
+            if sheet_name == "Classification":
+                for _, row in filtered.iterrows():
+                    # Exclude first column and only include column names with available data
+                    categories = [key for key, value in row.items() 
+                                 if key != data.columns[0] 
+                                 and pd.notna(value) 
+                                 and value != "No details available"]
+                    pdf.multi_cell(0, 6, f"Disease: {query}")
+                    pdf.multi_cell(0, 6, f"Categories: {', '.join(categories) if categories else 'N/A'}")
+            else:
+                for _, row in filtered.iterrows():
+                    for col, val in row.items():
+                        if pd.isna(val) or val == "No details available":
+                            continue
 
-                            # Remove "Unnamed" column names but keep their data
-                            if sheet_name == "Biopharma Pipeline Drug" and col.startswith("Unnamed"):
-                                if is_valid_url(val):
-                                    pdf.set_text_color(0, 0, 255)  # Set link color
-                                    pdf.cell(0, 6, val, ln=True, link=val)  # Clickable hyperlink
-                                    pdf.set_text_color(0, 0, 0)  # Reset color
-                                else:
-                                    pdf.multi_cell(0, 6, val)  # Normal text
-                            elif sheet_name == "Prevalence":
-                                pdf.cell(0, 6, f"{col}: {val}", ln=True)  # Use cell() for Prevalence
-                            elif sheet_name == "Publications" and is_valid_url(val):
+                        val = clean_text(str(val))
+                        val = format_text_for_pdf(val)
+
+                        # Remove "Unnamed" column names but keep their data
+                        if sheet_name == "Biopharma Pipeline" and col.startswith("Unnamed"):
+                            if is_valid_url(val):
                                 pdf.set_text_color(0, 0, 255)  # Set link color
-                                pdf.cell(0, 6, val, ln=True, link=val)  # Clickable hyperlink in Publications
-                                pdf.set_text_color(0, 0, 0)  # Reset color
-                            elif is_valid_url(val):
-                                pdf.set_text_color(0, 0, 255)  # Set link color
-                                pdf.cell(0, 6, f"{col}: ", ln=False)  # Add column name
-                                pdf.cell(0, 6, val, ln=True, link=val)  # Clickable hyperlink
-                                pdf.set_text_color(0, 0, 0)  # Reset color
+                                pdf.cell(0, 6, val, ln=True, link=val)
+                                pdf.set_text_color(0, 0, 0)
                             else:
-                                pdf.multi_cell(0, 6, f"{col}: {val}")  # Keep multi-cell for other sections
-                
-                if sheet_name == "Prevalence":
-                    pdf.multi_cell(0, 8, "NOTE: Without specification, published figures are worldwide || An asterisk * indicates European data || BP indicates Birth Prevalence.")
-    
+                                pdf.multi_cell(0, 6, val)
+                        elif sheet_name == "Publications" and is_valid_url(val):
+                            pdf.set_text_color(0, 0, 255)
+                            pdf.cell(0, 6, val, ln=True, link=val)
+                            pdf.set_text_color(0, 0, 0)
+                        elif is_valid_url(val):
+                            pdf.set_text_color(0, 0, 255)
+                            pdf.cell(0, 6, f"{col}: ", ln=False)
+                            pdf.cell(0, 6, val, ln=True, link=val)
+                            pdf.set_text_color(0, 0, 0)
+                        else:
+                            pdf.multi_cell(0, 6, f"{col}: {val}")
+
+        if sheet_name == "Prevalence":
+            pdf.multi_cell(0, 8, "NOTE: Without specification, published figures are worldwide || An asterisk * indicates European data || BP indicates birth prevalence.")
+
     pdf_file = f"{query}.pdf"
     pdf.output(pdf_file, "F")
 
     return send_file(pdf_file, as_attachment=True)
+
+@app.route("/get_disease_count")
+def get_disease_count():
+    """Return the total number of unique diseases from the Prevalence sheet."""
+    global fetched_data
+    if "Prevalence" in fetched_data and "Disease" in fetched_data["Prevalence"].columns:  # Changed to "Disease"
+        count = fetched_data["Prevalence"]["Disease"].dropna().nunique()  # Changed to "Disease"
+        return jsonify({"count": count})
+    return jsonify({"count": 0, "error": "Prevalence sheet or Disease column not found"}), 404
 
 if __name__ == "__main__":  
     app.run(debug=True)
