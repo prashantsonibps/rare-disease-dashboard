@@ -103,53 +103,57 @@
         }
 
         function fetchSheetData(sheetName, query, sheetId) {
-    var content = document.getElementById(sheetId);
+            var content = document.getElementById(sheetId);
 
-    // If it's hidden, show it immediately
-    var isCurrentlyHidden = content.style.display === "none" || content.style.display === "";
-    content.style.display = isCurrentlyHidden ? "block" : "none";
+            // If it's hidden, show it immediately
+            var isCurrentlyHidden = content.style.display === "none" || content.style.display === "";
+            content.style.display = isCurrentlyHidden ? "block" : "none";
 
-    // Show a loading message if data hasn't been fetched
-    if (!content.dataset.loaded) {
-        content.innerHTML = "<p>Loading...</p>";
-        
-        fetch("/fetch_data", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sheet_name: sheetName, query: query })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                content.innerHTML = `<p>${data.error}</p>`;
-            } else if (data.data.length === 0) {
-                content.innerHTML = "<p>No data available.</p>";
-            } else {
-                content.innerHTML = data.data.map(row => {
-                    if (sheetName === "Classification") {
-                        let columnsWithData = Object.entries(row)
-                            .filter(([key, value]) => key !== "Disease" && value && value !== "No details available")
-                            .map(([key, _]) => key);
-                        return `<p><strong>Disease:</strong> ${row["Disease"]}</p><p><strong>Categories:</strong> ${columnsWithData.join(", ")}</p>`;
+            // Show a loading message if data hasn't been fetched
+            if (!content.dataset.loaded) {
+                content.innerHTML = "<p>Loading...</p>";
+                
+                fetch("/fetch_data", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ sheet_name: sheetName, query: query })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error || data.data.length === 0) {
+                        content.innerHTML = "<p>N/A</p>"; // Display "N/A" if no data is available for any sheet
+                    } else {
+                        content.innerHTML = data.data.map(row => {
+                            if (sheetName === "Classification") {
+                                let columnsWithData = Object.entries(row)
+                                    .filter(([key, value]) => key !== "Disease" 
+                                        && key.toLowerCase() !== "unnamed: 0" 
+                                        && !key.toLowerCase().includes("unnamed") 
+                                        && value 
+                                        && value !== "No details available")
+                                    .map(([key, _]) => key);
+                                if (columnsWithData.length === 0) {
+                                    return `<p><strong>Disease:</strong> ${row["Disease"]}</p><p><strong>Categories:</strong> N/A</p>`;
+                                }
+                                return `<p><strong>Disease:</strong> ${row["Disease"]}</p><p><strong>Categories:</strong> ${columnsWithData.join(", ")}</p>`;
+                            }
+                            return `<p>${Object.entries(row).map(([key, value]) => {
+                                if (!value || value === "No details available") return "";
+                                if (key.startsWith("Unnamed")) {
+                                    return makeLinksClickable(`${value}`);
+                                }
+                                return `<strong>${key}:</strong> ` + makeLinksClickable(value.toString());
+                            }).join("<br>")}</p>`;
+                        }).join("<hr>").replace(/(<br>\s*)+/g, "<br>");
                     }
-                    return `<p>${Object.entries(row).map(([key, value]) => {
-                        if (!value || value === "No details available") return "";
-                        if (key.startsWith("Unnamed")) {
-                            return makeLinksClickable(`${value}`);
-                        }
-                        return `<strong>${key}:</strong> ` + makeLinksClickable(value.toString());
-                    }).join("<br>")}</p>`;
-                }).join("<hr>").replace(/(<br>\s*)+/g, "<br>");
+                    content.dataset.loaded = "true";
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    content.innerHTML = "<p>Error fetching data. Please try again.</p>";
+                });
             }
-            content.dataset.loaded = "true";
-        })
-        .catch(error => {
-            console.error("Error fetching data:", error);
-            content.innerHTML = "<p>Error fetching data. Please try again.</p>";
-        });
-    }
-}
-
+        }
 
         // Load Light Red Neuron Animation
         particlesJS("particles-js", {
